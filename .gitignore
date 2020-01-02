@@ -64,5 +64,5 @@ buck-out/
 /ios/Pods/
 
 # Sensitive files for API
-token.json
-tsconfig.json
+**/token.json
+**/tsconfig.json
