@@ -4,11 +4,15 @@ import {NavigationNativeContainer} from '@react-navigation/native';
 import {ThemeProvider} from 'react-native-elements';
 import Tabs from './src/containers/Tabs';
 import Login from './src/screens/Login';
-import {GoogleSignin} from '@react-native-community/google-signin';
-import {UserContext} from './src/store/Context';
+import {GoogleSignin, User} from '@react-native-community/google-signin';
+import {UserContext, UserContextInterface} from './src/store/Context';
+import {AxiosInstance} from 'axios';
 
 const App = () => {
-  const [user, setUser] = useState(undefined);
+  const [user, setUser] = useState<User | undefined>(undefined);
+  const [axiosInstance, setAxiosInstance] = useState<AxiosInstance | undefined>(
+    {},
+  );
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -19,14 +23,19 @@ const App = () => {
       iosClientId:
         '947382191204-g0dgrhs41lqrrgig7qq86j0umthnl1qe.apps.googleusercontent.com',
     });
-
-    // try to read token from asyncstorage
   }, []);
+
+  const UserContextValue: UserContextInterface = {
+    user,
+    setUser,
+    axiosInstance,
+    setAxiosInstance,
+  };
 
   return (
     <ThemeProvider>
       <NavigationNativeContainer>
-        <UserContext.Provider value={{user, setUser}}>
+        <UserContext.Provider value={UserContextValue}>
           {!user ? <Login /> : <Tabs />}
         </UserContext.Provider>
       </NavigationNativeContainer>

@@ -1,5 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import {View, SafeAreaView} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import {StyleSheet} from 'react-native';
 import {Button, Card, Text, Header} from 'react-native-elements';
 import {
@@ -8,22 +9,40 @@ import {
   statusCodes,
 } from '@react-native-community/google-signin';
 import {UserContext} from '../store/Context';
+import Axios from 'axios';
 
 interface Props {}
 
 const Login: React.FC<Props> = () => {
   const [isSigninInProgress, setIsSigninInProgress] = useState(false);
+  const {axiosInstance, setAxiosInstance, setUser, user} = useContext(
+    UserContext,
+  );
 
-  const loginHandler = async setUser => {
+  const prepareAxios = async () => {
+    // TODO im making this request all the time?
+    const {accessToken} = await GoogleSignin.getTokens();
+    const headers = {Authorization: `Bearer ${accessToken}`};
+    const instance = Axios.create({
+      baseURL: 'https://www.googleapis.com/calendar/v3',
+      headers,
+    });
+    setAxiosInstance(instance);
+  };
+
+  const loginHandler = async () => {
+    // const userCredentialString = await AsyncStorage.getItem('userCredentials');
+    // if (userCredentialString) {
+    //   setUser(JSON.parse(userCredentialString));
+    // }
+    setIsSigninInProgress(true);
     try {
-      setIsSigninInProgress(true);
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       setUser(userInfo);
       setIsSigninInProgress(false);
-
-      // TODO store token locally
-      // TODO add settings tab. add sign out button to settings tab
+      await AsyncStorage.setItem('userCredentials', JSON.stringify(userInfo));
+      await prepareAxios();
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // user cancelled the login flow
@@ -38,37 +57,33 @@ const Login: React.FC<Props> = () => {
   };
 
   return (
-    <UserContext.Consumer>
-      {({user, setUser}) => (
-        <>
-          <Header
-            centerComponent={{
-              text: 'BED',
-              style: {color: 'white', fontSize: 24},
-            }}
+    <>
+      <Header
+        centerComponent={{
+          text: 'BED',
+          style: {color: 'white', fontSize: 24},
+        }}
+      />
+      <View style={styles.container}>
+        <Text h3 style={styles.header}>
+          Bulk event deleter for Google Calendar
+        </Text>
+        <Card dividerStyle={{alignItems: 'center'}}>
+          <Text style={styles.text}>
+            This app lets you delete many events at once on your Google
+            Calendar. You need to login with Google to use this app.
+          </Text>
+          <Text>User: {JSON.stringify(user)}</Text>
+          <GoogleSigninButton
+            style={{width: 192, height: 48}}
+            size={GoogleSigninButton.Size.Wide}
+            color={GoogleSigninButton.Color.Dark}
+            onPress={loginHandler}
+            disabled={isSigninInProgress}
           />
-          <View style={styles.container}>
-            <Text h3 style={styles.header}>
-              Bulk event deleter for Google Calendar
-            </Text>
-            <Card dividerStyle={{alignItems: 'center'}}>
-              <Text style={styles.text}>
-                This app lets you delete many events at once on your Google
-                Calendar. You need to login with Google to use this app.
-              </Text>
-              <Text>User: {JSON.stringify(user)}</Text>
-              <GoogleSigninButton
-                style={{width: 192, height: 48}}
-                size={GoogleSigninButton.Size.Wide}
-                color={GoogleSigninButton.Color.Dark}
-                onPress={() => loginHandler(setUser)}
-                disabled={isSigninInProgress}
-              />
-            </Card>
-          </View>
-        </>
-      )}
-    </UserContext.Consumer>
+        </Card>
+      </View>
+    </>
   );
 };
 

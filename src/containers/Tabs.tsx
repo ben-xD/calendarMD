@@ -5,6 +5,7 @@ import Events from '../screens/Events';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {CalendarContext} from '../store/Context';
+import Settings from '../screens/Settings';
 
 interface Props {}
 
@@ -29,6 +30,7 @@ const Tabs: React.FC<Props> = () => {
         })}>
         <Tab.Screen name="Calendars" component={Calendars} />
         <Tab.Screen name="Events" component={Events} />
+        <Tab.Screen name="Settings" component={Settings} />
       </Tab.Navigator>
     </CalendarContext.Provider>
   );

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   SafeAreaView,
   View,
@@ -7,58 +7,72 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native';
-import {CalendarContext, UserContext} from '../store/Context';
-import {Input, Button} from 'react-native-elements';
+import {
+  CalendarContext,
+  UserContext,
+  UserContextInterface,
+} from '../store/Context';
+import {Input, Button, Card} from 'react-native-elements';
 import {GoogleAuthenticator} from 'google-calendar-bulk-delete';
 import Tabs from '../containers/Tabs';
+import Axios from 'axios';
+import {GoogleSignin} from '@react-native-community/google-signin';
 
 interface Props {}
 
-const Calendars: React.FC<Props> = () => {
-  const getCalendars = calendarId => {
-    console.log(`yay ${calendarId}`);
-    // why can't i import my GoogleAuthenticator in here.
-    // TODO use GoogAuth custom lib :D
-    // GoogleAuthenticator.
+const Calendars: React.FC<Props> = ({navigation}) => {
+  const [calenderIdInput, setCalenderIdInput] = useState('');
+  const [calendars, setCalendars] = useState([]);
+  const {user, axiosInstance} = useContext(UserContext);
+
+  const changeCalendar = (calendarId, setCalendarId) => {
+    setCalendarId(calendarId);
+    navigation.navigate('Events');
+  };
+
+  const fetchCalendars = async axiosInstance => {
+    try {
+      const response = await axiosInstance.get('/users/me/calendarList');
+      if (response) {
+        console.info({response});
+        const calendarsJson = response.data.items;
+        setCalendars(calendarsJson);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   useEffect(() => {
-    // TODO make request for calendars, and display them.
-  }, []);
+    console.log({axiosInstance});
+    fetchCalendars(axiosInstance);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, axiosInstance]);
 
-  const [calenderIdInput, setCalenderIdInput] = useState('');
-
-  const changeCalendarInputHandler = calendarId => {};
-
-  const submitChangeCalendar = (calendarId, setCalendarId) => {
-    setCalenderIdInput();
-  };
+  // const {user, setUser}: UserContextInterface = React.useContext(UserContext);
+  const {
+    calendarId,
+    setCalendarId,
+  }: CalendarContextInterface = React.useContext(CalendarContext);
 
   return (
-    <UserContext.Consumer>
-      {({user}) => (
-        <SafeAreaView>
-          <ScrollView style={styles.container}>
-            <CalendarContext.Consumer>
-              {value => (
-                <View>
-                  <Text>{JSON.stringify(user)}</Text>
-                  <Text>Current calendar ID: {value.calendarId}</Text>
-                  <Input
-                    placeholder="CalendarID"
-                    onChangeText={textInput => setCalenderIdInput(textInput)}
-                  />
-                  <Button
-                    title="Get calendars"
-                    onPress={() => value.setCalendarId(calenderIdInput)}
-                  />
-                </View>
-              )}
-            </CalendarContext.Consumer>
-          </ScrollView>
-        </SafeAreaView>
-      )}
-    </UserContext.Consumer>
+    <SafeAreaView>
+      <ScrollView style={styles.container}>
+        <View>
+          <Text>Current calendar ID: {calendarId}</Text>
+          <Text>Available calendars on your Google Account:</Text>
+          {calendars.map(calendar => (
+            <Card title={calendar.summary}>
+              <Text>{calendar.id}</Text>
+              <Button
+                onPress={() => changeCalendar(calendar.id, setCalendarId)}
+                title="Select events"
+              />
+            </Card>
+          ))}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
