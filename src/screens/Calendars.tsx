@@ -1,6 +1,13 @@
-import React from 'react';
-import {SafeAreaView, View, Text, TextInput} from 'react-native';
-import Context from '../store/Context';
+import React, {useState, useEffect} from 'react';
+import {
+  SafeAreaView,
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
+import {CalendarContext, UserContext} from '../store/Context';
 import {Input, Button} from 'react-native-elements';
 import {GoogleAuthenticator} from 'google-calendar-bulk-delete';
 import Tabs from '../containers/Tabs';
@@ -15,27 +22,50 @@ const Calendars: React.FC<Props> = () => {
     // GoogleAuthenticator.
   };
 
+  useEffect(() => {
+    // TODO make request for calendars, and display them.
+  }, []);
+
+  const [calenderIdInput, setCalenderIdInput] = useState('');
+
+  const changeCalendarInputHandler = calendarId => {};
+
+  const submitChangeCalendar = (calendarId, setCalendarId) => {
+    setCalenderIdInput();
+  };
+
   return (
-    <SafeAreaView>
-      <View>
-        <Context.Consumer>
-          {value => (
-            <View>
-              <Text>{value.calendarId}</Text>
-              <Input
-                placeholder="CalendarID"
-                onChangeText={t => value.setCalendarId(t)}
-              />
-              <Button
-                title="Get calendars"
-                onPress={() => getCalendars(value.calendarId)}
-              />
-            </View>
-          )}
-        </Context.Consumer>
-      </View>
-    </SafeAreaView>
+    <UserContext.Consumer>
+      {({user}) => (
+        <SafeAreaView>
+          <ScrollView style={styles.container}>
+            <CalendarContext.Consumer>
+              {value => (
+                <View>
+                  <Text>{JSON.stringify(user)}</Text>
+                  <Text>Current calendar ID: {value.calendarId}</Text>
+                  <Input
+                    placeholder="CalendarID"
+                    onChangeText={textInput => setCalenderIdInput(textInput)}
+                  />
+                  <Button
+                    title="Get calendars"
+                    onPress={() => value.setCalendarId(calenderIdInput)}
+                  />
+                </View>
+              )}
+            </CalendarContext.Consumer>
+          </ScrollView>
+        </SafeAreaView>
+      )}
+    </UserContext.Consumer>
   );
 };
 
 export default Calendars;
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+  },
+});

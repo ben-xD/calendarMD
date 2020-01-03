@@ -2,9 +2,9 @@ import React, {useState} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Calendars from '../screens/Calendars';
 import Events from '../screens/Events';
-import Context from '../store/Context';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {CalendarContext} from '../store/Context';
 
 interface Props {}
 
@@ -14,7 +14,7 @@ const Tabs: React.FC<Props> = () => {
   const [calendarId, setCalendarId] = useState('Calendar ID fake');
 
   return (
-    <Context.Provider value={{setCalendarId, calendarId}}>
+    <CalendarContext.Provider value={{setCalendarId, calendarId}}>
       <Tab.Navigator
         screenOptions={({route}) => ({
           tabBarIcon: ({focused, color, size}) => {
@@ -27,14 +27,10 @@ const Tabs: React.FC<Props> = () => {
             }
           },
         })}>
-        <Tab.Screen
-          name="Calendars"
-          component={Calendars}
-          setCalendarId={setCalendarId}
-        />
-        <Tab.Screen name="Events" component={Events} calendarId={calendarId} />
+        <Tab.Screen name="Calendars" component={Calendars} />
+        <Tab.Screen name="Events" component={Events} />
       </Tab.Navigator>
-    </Context.Provider>
+    </CalendarContext.Provider>
   );
 };
 

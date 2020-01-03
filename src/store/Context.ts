@@ -1,4 +1,5 @@
 import React from 'react';
 
-const Context = React.createContext({});
-export default Context;
+const CalendarContext = React.createContext({});
+const UserContext = React.createContext({});
+export {CalendarContext, UserContext};
