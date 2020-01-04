@@ -12,7 +12,7 @@ interface Props {}
 const Tab = createBottomTabNavigator();
 
 const Tabs: React.FC<Props> = () => {
-  const [calendarId, setCalendarId] = useState('Calendar ID fake');
+  const [calendarId, setCalendarId] = useState('');
 
   return (
     <CalendarContext.Provider value={{setCalendarId, calendarId}}>

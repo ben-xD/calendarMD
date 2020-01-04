@@ -7,14 +7,25 @@ import Login from './src/screens/Login';
 import {GoogleSignin, User} from '@react-native-community/google-signin';
 import {UserContext, UserContextInterface} from './src/store/Context';
 import {AxiosInstance} from 'axios';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const App = () => {
   const [user, setUser] = useState<User | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
   const [axiosInstance, setAxiosInstance] = useState<AxiosInstance | undefined>(
-    {},
+    undefined,
   );
 
+  const fetchUserFromStorage = async () => {
+    const userCredentialString = await AsyncStorage.getItem('userCredentials');
+    if (userCredentialString) {
+      setUser(JSON.parse(userCredentialString));
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
+    fetchUserFromStorage();
     GoogleSignin.configure({
       scopes: ['https://www.googleapis.com/auth/calendar'],
       webClientId:
@@ -36,7 +47,7 @@ const App = () => {
     <ThemeProvider>
       <NavigationNativeContainer>
         <UserContext.Provider value={UserContextValue}>
-          {!user ? <Login /> : <Tabs />}
+          {!loading && !user ? <Login /> : <Tabs />}
         </UserContext.Provider>
       </NavigationNativeContainer>
     </ThemeProvider>

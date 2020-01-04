@@ -1,32 +1,89 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {View, Text, SafeAreaView} from 'react-native';
+import {View, Text, SafeAreaView, ScrollView} from 'react-native';
 import {CalendarContext, UserContext} from '../store/Context';
-import {Card} from 'react-native-elements';
+import {Card, Button, Input} from 'react-native-elements';
+import {GoogleSignin} from '@react-native-community/google-signin';
+import Axios from 'axios';
 
 interface Props {}
 
 const Events: React.FC<Props> = () => {
   const {calendarId} = useContext(CalendarContext);
-  const {googleApi} = useContext(UserContext);
   const [events, setEvents] = useState([]);
+  const [searchString, setSearchString] = useState('');
 
-  useEffect(() => {
-    // googleApi
-    console.log({calendarId});
-    // make requests for events
+  const fetchEvents = async () => {
+    // TODO im making this request all the time? How to refactor instance. Tried for 5 hours
+    const {accessToken} = await GoogleSignin.getTokens();
+    const headers = {Authorization: `Bearer ${accessToken}`};
+    const instance = Axios.create({
+      baseURL: 'https://www.googleapis.com/calendar/v3',
+      headers,
+    });
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    try {
+      const response = await instance.get(
+        `/calendars/${calendarId}/events?q=${searchString}`,
+      );
+      if (response) {
+        console.log({response});
+        setEvents(response.data.items);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const deleteEvents = async () => {
+    const {accessToken} = await GoogleSignin.getTokens();
+    const headers = {Authorization: `Bearer ${accessToken}`};
+    const instance = Axios.create({
+      baseURL: 'https://www.googleapis.com/calendar/v3',
+      headers,
+    });
+
+    // do a deep copy, not just a reference
+    const workingSet = events;
+    let deletedEventIds = [];
+    workingSet.map(event => {
+      try {
+        console.log(`Deleting ${event.id}`);
+        instance.delete(`/calendars/${calendarId}/events/${event.id}`);
+      } catch (err) {
+        console.log(err);
+      }
+      deletedEventIds.push(event.id);
+      console.log(
+        `deleted ${event.id}, deleted events: ${JSON.stringify(
+          deletedEventIds,
+        )}`,
+      );
+    });
+    console.log('deleted');
+  };
 
   return (
     <SafeAreaView>
-      <View>
+      <ScrollView>
+        <Text>Search for events here:</Text>
+        <Input
+          placeholder="Dinner with Elon Musk"
+          onChangeText={value => setSearchString(value)}
+        />
+        <Button onPress={fetchEvents} title="Fetch events" />
+        {events.length > 5 ? (
+          <Text>Scroll down to find delete button.</Text>
+        ) : (
+          <></>
+        )}
         {events.map(event => (
-          <Card title={'Hello card'}>
-            <Text>{'Event contents.'}</Text>
+          <Card title={event.summary}>
+            <Text>Date: {event.start.dateTime}</Text>
           </Card>
         ))}
-      </View>
+        {events.length == 0 ? <Text>No events</Text> : <></>}
+        <Button onPress={deleteEvents} title="Delete events" />
+      </ScrollView>
     </SafeAreaView>
   );
 };
