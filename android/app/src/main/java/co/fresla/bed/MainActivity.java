@@ -1,4 +1,4 @@
-package com.bed;
+package co.fresla.bed;
 
 import com.facebook.react.ReactActivity;
 

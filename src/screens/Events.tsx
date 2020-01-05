@@ -100,7 +100,7 @@ const Events: React.FC<Props> = () => {
             <Text>Date: {event.start.dateTime}</Text>
           </Card>
         ))}
-        {events.length == 0 ? <Text>No events</Text> : <></>}
+        {events.length === 0 ? <Text>No events</Text> : <></>}
         <Button onPress={deleteEvents} title="Delete events" />
       </ScrollView>
     </SafeAreaView>

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
+    "android-debug-cert-fingerprint": "keytool -list -v -keystore ./android/app/debug.keystore -alias androiddebugkey -storepass android -keypass android",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
