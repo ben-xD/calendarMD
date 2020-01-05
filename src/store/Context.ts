@@ -6,7 +6,7 @@ export interface UserContextInterface {
   axiosInstance: AxiosInstance | undefined;
   setAxiosInstance: (axiosInstance: AxiosInstance) => void;
   user: User | undefined;
-  setUser: (user: User) => void;
+  setUser: (user: User | undefined) => void;
 }
 
 export interface CalendarContextInterface {

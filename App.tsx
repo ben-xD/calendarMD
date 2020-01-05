@@ -4,7 +4,11 @@ import {NavigationNativeContainer} from '@react-navigation/native';
 import {ThemeProvider} from 'react-native-elements';
 import Tabs from './src/containers/Tabs';
 import Login from './src/screens/Login';
-import {GoogleSignin, User} from '@react-native-community/google-signin';
+import {
+  GoogleSignin,
+  User,
+  statusCodes,
+} from '@react-native-community/google-signin';
 import {UserContext, UserContextInterface} from './src/store/Context';
 import {AxiosInstance} from 'axios';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -17,9 +21,25 @@ const App = () => {
   );
 
   const fetchUserFromStorage = async () => {
-    const userCredentialString = await AsyncStorage.getItem('userCredentials');
+    // TODO change to realmDb or encrypt storage?
+    const userCredentialString = await AsyncStorage.getItem('userLoggedIn');
     if (userCredentialString) {
-      setUser(JSON.parse(userCredentialString));
+      try {
+        const userInfo = await GoogleSignin.signInSilently();
+        setUser(userInfo);
+        console.log('signed in silently');
+      } catch (error) {
+        setUser(undefined);
+        if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+          // user cancelled the login flow
+        } else if (error.code === statusCodes.IN_PROGRESS) {
+          // operation (e.g. sign in) is in progress already
+        } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+          // play services not available or outdated
+        } else {
+          // some other error happened
+        }
+      }
     }
     setLoading(false);
   };
@@ -34,6 +54,7 @@ const App = () => {
       iosClientId:
         '947382191204-g0dgrhs41lqrrgig7qq86j0umthnl1qe.apps.googleusercontent.com',
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const UserContextValue: UserContextInterface = {

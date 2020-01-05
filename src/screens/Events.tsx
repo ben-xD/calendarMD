@@ -8,7 +8,7 @@ import Axios from 'axios';
 interface Props {}
 
 const Events: React.FC<Props> = () => {
-  const {calendarId} = useContext(CalendarContext);
+  const {calendarId, calendarName} = useContext(CalendarContext);
   const [events, setEvents] = useState([]);
   const [searchString, setSearchString] = useState('');
 
@@ -65,19 +65,38 @@ const Events: React.FC<Props> = () => {
   return (
     <SafeAreaView>
       <ScrollView>
-        <Text>Search for events here:</Text>
+        <View>
+          <Card>
+            <Text
+              style={{
+                fontSize: 24,
+                textAlign: 'center',
+              }}>
+              {`Calendar: ${calendarName}`}
+            </Text>
+          </Card>
+        </View>
+        <Text />
         <Input
           placeholder="Dinner with Elon Musk"
           onChangeText={value => setSearchString(value)}
         />
-        <Button onPress={fetchEvents} title="Fetch events" />
+        <Button onPress={fetchEvents} title="Search for events" />
         {events.length > 5 ? (
-          <Text>Scroll down to find delete button.</Text>
+          <Card>
+            <Text
+              style={{
+                fontSize: 16,
+              }}>
+              Scroll down to find delete button! The more events you wanna
+              delete, the harder you gotta work! (A security feature!)
+            </Text>
+          </Card>
         ) : (
           <></>
         )}
         {events.map(event => (
-          <Card title={event.summary}>
+          <Card key={event.id} title={event.summary}>
             <Text>Date: {event.start.dateTime}</Text>
           </Card>
         ))}

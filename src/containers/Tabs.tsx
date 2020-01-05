@@ -13,9 +13,11 @@ const Tab = createBottomTabNavigator();
 
 const Tabs: React.FC<Props> = () => {
   const [calendarId, setCalendarId] = useState('');
+  const [calendarName, setCalendarName] = useState('');
 
   return (
-    <CalendarContext.Provider value={{setCalendarId, calendarId}}>
+    <CalendarContext.Provider
+      value={{setCalendarId, calendarId, calendarName, setCalendarName}}>
       <Tab.Navigator
         screenOptions={({route}) => ({
           tabBarIcon: ({focused, color, size}) => {
@@ -24,6 +26,10 @@ const Tabs: React.FC<Props> = () => {
             } else if (route.name === 'Events') {
               return (
                 <MaterialIcons name="event-busy" size={size} color={color} />
+              );
+            } else if (route.name === 'Settings') {
+              return (
+                <MaterialIcons name="settings" size={size} color={color} />
               );
             }
           },

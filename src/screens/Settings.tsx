@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {Text, View, SafeAreaView} from 'react-native';
+import {SafeAreaView} from 'react-native';
 import {Button} from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
 import {UserContext} from '../store/Context';
@@ -11,7 +11,7 @@ const Settings: React.FC<Props> = () => {
 
   const logoutHandler = () => {
     setUser(undefined);
-    AsyncStorage.removeItem('userCredentials');
+    AsyncStorage.removeItem('userLoggedIn');
   };
 
   return (

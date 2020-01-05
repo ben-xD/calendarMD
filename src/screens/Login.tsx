@@ -23,7 +23,7 @@ const Login: React.FC<Props> = () => {
       setIsSigninInProgress(true);
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      await AsyncStorage.setItem('userCredentials', JSON.stringify(userInfo));
+      await AsyncStorage.setItem('userLoggedIn', JSON.stringify(true));
       setUser(userInfo);
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {

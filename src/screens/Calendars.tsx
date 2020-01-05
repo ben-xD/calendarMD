@@ -9,16 +9,18 @@ interface Props {}
 
 const Calendars: React.FC<Props> = ({navigation}) => {
   const [calendars, setCalendars] = useState([]);
-  const {calendarId, setCalendarId} = React.useContext(CalendarContext);
+  const {setCalendarId, setCalendarName} = React.useContext(CalendarContext);
+  const {user} = React.useContext(UserContext);
 
-  const changeCalendar = (calendarId, setCalendarId) => {
-    setCalendarId(calendarId);
+  const changeCalendar = (calendar, setId) => {
+    setId(calendar.id);
+    setCalendarName(calendar.summary);
     navigation.navigate('Events');
   };
 
   useEffect(() => {
     fetchCalendars();
-  }, []);
+  }, [navigation, user]);
 
   const fetchCalendars = async () => {
     // TODO im making this request all the time? How to refactor instance. Tried for 5 hours
@@ -43,21 +45,28 @@ const Calendars: React.FC<Props> = ({navigation}) => {
     <SafeAreaView>
       <ScrollView style={styles.container}>
         <View>
-          <Text>
-            {calendarId === ''
-              ? 'No calendar set'
-              : `Current calendar ID: ${calendarId}`}
-          </Text>
-          <Text>Available calendars on your Google Account:</Text>
-          {calendars.map(calendar => (
-            <Card key={calendar.id} title={calendar.summary}>
-              <Text>{calendar.id}</Text>
-              <Button
-                onPress={() => changeCalendar(calendar.id, setCalendarId)}
-                title="Select events"
-              />
+          <View>
+            <Card>
+              <Text
+                style={{
+                  fontSize: 16,
+                }}>
+                {`Hi ${
+                  user ? user.user.givenName : ''
+                }, choose a calendar to search for events to delete:`}
+              </Text>
             </Card>
-          ))}
+          </View>
+          <Card>
+            {calendars.map(calendar => (
+              <Button
+                style={{margin: 5}}
+                key={calendar.id}
+                onPress={() => changeCalendar(calendar, setCalendarId)}
+                title={calendar.summary}
+              />
+            ))}
+          </Card>
         </View>
       </ScrollView>
     </SafeAreaView>
