@@ -1,8 +1,7 @@
 import React, {useState, useContext} from 'react';
-import {View} from 'react-native';
+import {View, Text} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import {StyleSheet} from 'react-native';
-import {Card, Text, Header} from 'react-native-elements';
 import {
   GoogleSignin,
   GoogleSigninButton,
@@ -14,15 +13,17 @@ interface Props {}
 
 const Login: React.FC<Props> = () => {
   const [isSigninInProgress, setIsSigninInProgress] = useState(false);
-  const {setUser} = useContext(UserContext);
+  const {setUser, setToken} = useContext(UserContext);
 
   const loginHandler = async () => {
     try {
       setIsSigninInProgress(true);
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      await AsyncStorage.setItem('userLoggedIn', JSON.stringify(true));
+      const {accessToken} = await GoogleSignin.getTokens();
       setUser(userInfo);
+      setToken(accessToken);
+      await AsyncStorage.setItem('userLoggedIn', JSON.stringify(true));
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // user cancelled the login flow
@@ -39,32 +40,27 @@ const Login: React.FC<Props> = () => {
   };
 
   return (
-    <>
-      <Header
-        centerComponent={{
-          text: 'BED',
-          style: {color: 'white', fontSize: 24},
-        }}
-      />
-      <View style={styles.container}>
-        <Text h3 style={styles.header}>
-          Bulk event deleter for Google Calendar
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.header}>BED</Text>
+        <Text style={[styles.header, {fontSize: 24, fontStyle: 'italic'}]}>
+          Bulk event deleter
         </Text>
-        <Card>
-          <Text style={styles.text}>
-            This app lets you delete many events at once on your Google
-            Calendar. You need to login with Google to use this app.
-          </Text>
-          <GoogleSigninButton
-            style={styles.signInButton}
-            size={GoogleSigninButton.Size.Wide}
-            color={GoogleSigninButton.Color.Dark}
-            onPress={loginHandler}
-            disabled={isSigninInProgress}
-          />
-        </Card>
       </View>
-    </>
+      <Text style={[styles.text, {fontWeight: '800', fontStyle: 'italic'}]}>
+        3 steps:
+      </Text>
+      <Text style={styles.text}>1. Select calendar</Text>
+      <Text style={styles.text}>2. Search events</Text>
+      <Text style={styles.text}>3. Delete</Text>
+      <GoogleSigninButton
+        style={styles.signInButton}
+        size={GoogleSigninButton.Size.Wide}
+        color={GoogleSigninButton.Color.Dark}
+        onPress={loginHandler}
+        disabled={isSigninInProgress}
+      />
+    </View>
   );
 };
 
@@ -73,16 +69,29 @@ export default Login;
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    height: '100%',
+  },
+  cardContainer: {
+    alignItems: 'center',
+  },
+  headerContainer: {
+    marginBottom: 16,
   },
   header: {
     fontWeight: '100',
+    fontSize: 48,
     textAlign: 'center',
   },
   text: {
     marginBottom: 16,
+    fontSize: 24,
+    fontWeight: '400',
   },
   signInButton: {
-    width: 192,
-    height: 48,
+    width: '95%',
+    height: '10%',
+    alignSelf: 'center',
+    position: 'absolute',
+    bottom: 16,
   },
 });

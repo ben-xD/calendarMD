@@ -3,6 +3,7 @@ import {SafeAreaView, StyleSheet} from 'react-native';
 import {Button, Text} from 'react-native-elements';
 import {UserContext} from '../store/Context';
 import {GoogleSignin} from '@react-native-community/google-signin';
+import AsyncStorage from '@react-native-community/async-storage';
 
 interface Props {}
 
@@ -10,11 +11,13 @@ const Settings: React.FC<Props> = () => {
   const {setUser, emptyState} = useContext(UserContext);
 
   const logoutHandler = () => {
+    AsyncStorage.removeItem('userLoggedIn');
     emptyState();
     GoogleSignin.signOut();
   };
 
   const revokeHandler = () => {
+    AsyncStorage.removeItem('userLoggedIn');
     emptyState();
     GoogleSignin.revokeAccess();
   };

@@ -22,7 +22,6 @@ const App = () => {
   );
 
   const emptyState = () => {
-    AsyncStorage.removeItem('userLoggedIn');
     setUser(undefined);
     setToken(undefined);
     setAxiosInstance(undefined);
@@ -38,9 +37,9 @@ const App = () => {
         setToken(accessToken);
         setUser(userInfo);
       } catch (error) {
+        // TODO UI warning of failure
         console.log({error});
-        setToken(undefined);
-        setUser(undefined);
+        emptyState();
         if (error.code === statusCodes.SIGN_IN_CANCELLED) {
           // user cancelled the login flow
         } else if (error.code === statusCodes.IN_PROGRESS) {
