@@ -15,10 +15,18 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 const App = () => {
   const [user, setUser] = useState<User | undefined>(undefined);
+  const [token, setToken] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [axiosInstance, setAxiosInstance] = useState<AxiosInstance | undefined>(
     undefined,
   );
+
+  const emptyState = () => {
+    AsyncStorage.removeItem('userLoggedIn');
+    setUser(undefined);
+    setToken(undefined);
+    setAxiosInstance(undefined);
+  };
 
   const fetchUserFromStorage = async () => {
     // TODO change to realmDb or encrypt storage?
@@ -26,9 +34,12 @@ const App = () => {
     if (userCredentialString) {
       try {
         const userInfo = await GoogleSignin.signInSilently();
+        const {accessToken} = await GoogleSignin.getTokens();
+        setToken(accessToken);
         setUser(userInfo);
-        console.log('signed in silently');
       } catch (error) {
+        console.log({error});
+        setToken(undefined);
         setUser(undefined);
         if (error.code === statusCodes.SIGN_IN_CANCELLED) {
           // user cancelled the login flow
@@ -45,7 +56,6 @@ const App = () => {
   };
 
   useEffect(() => {
-    fetchUserFromStorage();
     GoogleSignin.configure({
       scopes: ['https://www.googleapis.com/auth/calendar'],
       webClientId:
@@ -54,6 +64,7 @@ const App = () => {
       iosClientId:
         '947382191204-g0dgrhs41lqrrgig7qq86j0umthnl1qe.apps.googleusercontent.com',
     });
+    fetchUserFromStorage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -62,6 +73,8 @@ const App = () => {
     setUser,
     axiosInstance,
     setAxiosInstance,
+    accessToken: token,
+    emptyState,
   };
 
   return (

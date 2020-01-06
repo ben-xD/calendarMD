@@ -1,20 +1,19 @@
-import React, {useContext, useEffect, useState} from 'react';
-import {View, Text, SafeAreaView, ScrollView} from 'react-native';
+import React, {useContext, useState} from 'react';
+import {View, Text, SafeAreaView, ScrollView, StyleSheet} from 'react-native';
 import {CalendarContext, UserContext} from '../store/Context';
-import {Card, Button, Input} from 'react-native-elements';
-import {GoogleSignin} from '@react-native-community/google-signin';
+import {Card, Button, ListItem, SearchBar} from 'react-native-elements';
 import Axios from 'axios';
 
 interface Props {}
 
 const Events: React.FC<Props> = () => {
   const {calendarId, calendarName} = useContext(CalendarContext);
+  const {accessToken} = useContext(UserContext);
   const [events, setEvents] = useState([]);
   const [searchString, setSearchString] = useState('');
 
   const fetchEvents = async () => {
     // TODO im making this request all the time? How to refactor instance. Tried for 5 hours
-    const {accessToken} = await GoogleSignin.getTokens();
     const headers = {Authorization: `Bearer ${accessToken}`};
     const instance = Axios.create({
       baseURL: 'https://www.googleapis.com/calendar/v3',
@@ -35,7 +34,7 @@ const Events: React.FC<Props> = () => {
   };
 
   const deleteEvents = async () => {
-    const {accessToken} = await GoogleSignin.getTokens();
+    // const {accessToken} = await GoogleSignin.getTokens();
     const headers = {Authorization: `Bearer ${accessToken}`};
     const instance = Axios.create({
       baseURL: 'https://www.googleapis.com/calendar/v3',
@@ -66,6 +65,21 @@ const Events: React.FC<Props> = () => {
     <SafeAreaView>
       <ScrollView>
         <View>
+          {events.length > 5 ? (
+            <Card containerStyle={{backgroundColor: '#999999'}}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  textAlign: 'center',
+                  fontStyle: 'italic',
+                  color: 'white',
+                }}>
+                Scroll to the bottom to delete all.
+              </Text>
+            </Card>
+          ) : (
+            <></>
+          )}
           <Card>
             <Text
               style={{
@@ -76,35 +90,38 @@ const Events: React.FC<Props> = () => {
             </Text>
           </Card>
         </View>
-        <Text />
-        <Input
+        <SearchBar
           placeholder="Dinner with Elon Musk"
+          lightTheme={true}
           onChangeText={value => setSearchString(value)}
+          value={searchString}
         />
-        <Button onPress={fetchEvents} title="Search for events" />
-        {events.length > 5 ? (
-          <Card>
-            <Text
-              style={{
-                fontSize: 16,
-              }}>
-              Scroll down to find delete button! The more events you wanna
-              delete, the harder you gotta work! (A security feature!)
-            </Text>
-          </Card>
-        ) : (
-          <></>
-        )}
+        <Button
+          containerStyle={styles.buttonContainer}
+          onPress={fetchEvents}
+          title="Search for events"
+        />
         {events.map(event => (
-          <Card key={event.id} title={event.summary}>
-            <Text>Date: {event.start.dateTime}</Text>
-          </Card>
+          <ListItem key={event.id} title={event.summary} />
         ))}
-        {events.length === 0 ? <Text>No events</Text> : <></>}
-        <Button onPress={deleteEvents} title="Delete events" />
+        {events.length === 0 ? (
+          <Text>No events</Text>
+        ) : (
+          <Button
+            containerStyle={styles.buttonContainer}
+            onPress={deleteEvents}
+            title="Delete events"
+          />
+        )}
       </ScrollView>
     </SafeAreaView>
   );
 };
 
 export default Events;
+
+const styles = StyleSheet.create({
+  buttonContainer: {
+    margin: 8,
+  },
+});

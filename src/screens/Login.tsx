@@ -14,9 +14,7 @@ interface Props {}
 
 const Login: React.FC<Props> = () => {
   const [isSigninInProgress, setIsSigninInProgress] = useState(false);
-  const userContextValue = useContext(UserContext);
-  console.log({userContextValue});
-  const {user, setUser} = userContextValue;
+  const {setUser} = useContext(UserContext);
 
   const loginHandler = async () => {
     try {
@@ -57,7 +55,6 @@ const Login: React.FC<Props> = () => {
             This app lets you delete many events at once on your Google
             Calendar. You need to login with Google to use this app.
           </Text>
-          <Text>User: {JSON.stringify(user)}</Text>
           <GoogleSigninButton
             style={styles.signInButton}
             size={GoogleSigninButton.Size.Wide}
