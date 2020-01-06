@@ -1,5 +1,5 @@
 import React, {useState, useCallback} from 'react';
-import {SafeAreaView, View, Text, ScrollView, StyleSheet} from 'react-native';
+import {SafeAreaView, View, Text, ScrollView, StyleSheet, ActivityIndicator} from 'react-native';
 import {CalendarContext, UserContext} from '../store/Context';
 import {Button} from 'react-native-elements';
 import Axios from 'axios';
@@ -9,6 +9,7 @@ interface Props {}
 
 const Calendars: React.FC<Props> = ({navigation}) => {
   const [calendars, setCalendars] = useState([]);
+  const [loading, setLoading] = useState(true);
   const {setCalendarId, setCalendarName} = React.useContext(CalendarContext);
   const {user, accessToken} = React.useContext(UserContext);
 
@@ -20,6 +21,7 @@ const Calendars: React.FC<Props> = ({navigation}) => {
 
   const memoizedFetchCalendars = useCallback(() => {
     const fetchCalendars = async () => {
+      setLoading(true);
       // TODO im making this request all the time? How to refactor instance. Tried for 5 hours
       const headers = {Authorization: `Bearer ${accessToken}`};
       const instance = Axios.create({
@@ -34,6 +36,7 @@ const Calendars: React.FC<Props> = ({navigation}) => {
       } catch (err) {
         console.log({err});
       }
+      setLoading(false)
     };
 
     if (accessToken) {
@@ -44,9 +47,13 @@ const Calendars: React.FC<Props> = ({navigation}) => {
 
   useFocusEffect(memoizedFetchCalendars);
 
-  return (
-    <SafeAreaView>
-      <ScrollView style={styles.container}>
+  return (loading ? 
+        <View style={{flex: 1, justifyContent: 'center'}}>
+          <ActivityIndicator size="large"></ActivityIndicator>
+        </View>
+           :
+            <SafeAreaView>
+          <ScrollView style={styles.container}>
         <View>
           <View style={styles.titleContainer}>
             <Text style={styles.title}>
@@ -56,23 +63,24 @@ const Calendars: React.FC<Props> = ({navigation}) => {
           </View>
           {calendars.map(calendar => (
             <Button
-              containerStyle={styles.buttonContainer}
+              containerStyle={[styles.buttonContainer]}
               key={calendar.id}
               onPress={() => changeCalendar(calendar, setCalendarId)}
               title={calendar.summary}
             />
-          ))}
+            ))}
         </View>
-      </ScrollView>
+            </ScrollView>
     </SafeAreaView>
   );
-};
+}
 
 export default Calendars;
 
 const styles = StyleSheet.create({
   container: {
     width: '100%',
+    height: '100%'
   },
   titleContainer: {
     margin: 8,

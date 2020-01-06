@@ -41,24 +41,15 @@ const Events: React.FC<Props> = () => {
       headers,
     });
 
-    // do a deep copy, not just a reference
-    const workingSet = events;
-    let deletedEventIds = [];
-    workingSet.map(event => {
+    events.map(event => {
       try {
-        console.log(`Deleting ${event.id}`);
         instance.delete(`/calendars/${calendarId}/events/${event.id}`);
+        setEvents(events => events.filter(e => e.id != event.id))
       } catch (err) {
+        // store errors, and display at the end
         console.log(err);
       }
-      deletedEventIds.push(event.id);
-      console.log(
-        `deleted ${event.id}, deleted events: ${JSON.stringify(
-          deletedEventIds,
-        )}`,
-      );
     });
-    console.log('deleted');
   };
 
   return (
@@ -81,13 +72,13 @@ const Events: React.FC<Props> = () => {
             <></>
           )}
           <Card>
-            <Text
-              style={{
+              
+              <Text style={{
                 fontSize: 24,
                 textAlign: 'center',
               }}>
-              {`Calendar: ${calendarName}`}
-            </Text>
+              {calendarId == "" ? "set calendar at Calendars tab" : `Calendar: ${calendarName}`}
+              </Text>
           </Card>
         </View>
         <SearchBar
@@ -101,9 +92,7 @@ const Events: React.FC<Props> = () => {
           onPress={fetchEvents}
           title="Search for events"
         />
-        {events.map(event => (
-          <ListItem key={event.id} title={event.summary} />
-        ))}
+        {events.map(event => (<ListItem key={event.id} title={event.summary} />))}
         {events.length === 0 ? (
           <Text>No events</Text>
         ) : (

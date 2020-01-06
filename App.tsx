@@ -73,6 +73,7 @@ const App = () => {
     axiosInstance,
     setAxiosInstance,
     accessToken: token,
+    setToken,
     emptyState,
   };
 
