@@ -10,6 +10,7 @@ import {CalendarContext, UserContext} from '../store/Context';
 import {Button, ListItem, SearchBar} from 'react-native-elements';
 import Axios from 'axios';
 import NoEvents from '../components/NoEvents';
+import EventList from '../components/EventList';
 
 interface Props {}
 
@@ -71,44 +72,9 @@ const Events: React.FC<Props> = () => {
         value={searchString}
         onSubmitEditing={fetchEvents}
       />
-      {events.length === 0 ? (
-        <NoEvents />
-      ) : (
-        <>
-          <FlatList
-            data={events}
-            renderItem={({item}) => (
-              <ListItem
-                style={{width: '100%'}}
-                key={item.id}
-                title={item.summary}
-                bottomDivider
-                topDivider
-              />
-            )}
-            ListFooterComponent={
-              <Button
-                containerStyle={styles.buttonContainer}
-                onPress={deleteEvents}
-                title="Delete events"
-              />
-            }
-          />
-        </>
-      )}
+      <EventList events={events} deleteEvents={deleteEvents} />
     </>
   );
 };
 
 export default Events;
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-  },
-  buttonContainer: {
-    margin: 8,
-    width: '90%',
-    alignSelf: 'center',
-  },
-});
