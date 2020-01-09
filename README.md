@@ -5,6 +5,7 @@
 - Added a bunch of events, only a few of which you care about (e.g. university lectures :poop:)
 
 ## TODOs
-- Add UI error handling for login fails/ internet connectivity issues
+- Add network error modal [netinfo](https://github.com/react-native-community/react-native-netinfo)
+- Add toast: permission issues (deleting read-only events)
 - Fix typescript warnings
 - Refactor AxiosInstance into module
