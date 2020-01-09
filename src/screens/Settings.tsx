@@ -1,45 +1,50 @@
 import React, {useContext} from 'react';
-import {SafeAreaView, StyleSheet} from 'react-native';
-import {Button, Text} from 'react-native-elements';
+import {SafeAreaView, StyleSheet, View, Linking} from 'react-native';
+import {Text, ListItem} from 'react-native-elements';
 import {UserContext} from '../store/Context';
 import {GoogleSignin} from '@react-native-community/google-signin';
 import AsyncStorage from '@react-native-community/async-storage';
 
 interface Props {}
 
-const Settings: React.FC<Props> = () => {
-  const {setUser, emptyState} = useContext(UserContext);
+const Settings: React.FC<Props> = ({navigation}) => {
+  const {emptyState} = useContext(UserContext);
 
   const logoutHandler = () => {
     AsyncStorage.removeItem('userLoggedIn');
     emptyState();
     GoogleSignin.signOut();
+    navigation.reset();
   };
 
-  const revokeHandler = () => {
-    AsyncStorage.removeItem('userLoggedIn');
-    emptyState();
-    GoogleSignin.revokeAccess();
+  const openEmail = () => {
+    Linking.openURL('mailto:ben@fresla.co?subject=Bed%20App%20Support').catch(
+      // TODO display toast warning about no mail app available
+      err => console.log(err),
+    );
   };
 
   return (
-    <SafeAreaView style={{padding: 8}}>
-      <Text h4 style={{marginBottom: 8}}>
-        Settings
-      </Text>
-      {/* TODO delete all state when logging out? */}
-      <Button
-        containerStyle={styles.buttonContainer}
-        title="Log out"
-        buttonStyle={[styles.button]}
-        onPress={logoutHandler}
-      />
-      <Button
-        containerStyle={styles.buttonContainer}
-        buttonStyle={[styles.button, styles.revokeButton]}
-        title="Revoke app permissions"
-        onPress={revokeHandler}
-      />
+    <SafeAreaView>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>{'Settings'}</Text>
+        <Text>let us know if you need help.</Text>
+      </View>
+      <View style={styles.listContainer}>
+        <ListItem
+          containerStyle={styles.buttonContainer}
+          title="Email us"
+          topDivider
+          bottomDivider
+          onPress={openEmail}
+        />
+        <ListItem
+          containerStyle={styles.buttonContainer}
+          title="Log out"
+          bottomDivider
+          onPress={logoutHandler}
+        />
+      </View>
     </SafeAreaView>
   );
 };
@@ -47,9 +52,18 @@ const Settings: React.FC<Props> = () => {
 export default Settings;
 
 const styles = StyleSheet.create({
-  buttonContainer: {
+  titleContainer: {
     margin: 8,
+  },
+  title: {
+    fontSize: 24,
+  },
+  listContainer: {
+    width: '100%',
+  },
+  buttonContainer: {
     marginTop: 0,
+    width: '100%',
   },
   button: {
     height: 48,

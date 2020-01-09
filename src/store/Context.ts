@@ -4,9 +4,12 @@ import {User} from '@react-native-community/google-signin';
 
 export interface UserContextInterface {
   axiosInstance: AxiosInstance | undefined;
+  setToken: (accessToken: string) => void | undefined;
+  accessToken: string | undefined;
   setAxiosInstance: (axiosInstance: AxiosInstance) => void;
   user: User | undefined;
   setUser: (user: User | undefined) => void;
+  emptyState: () => void;
 }
 
 export interface CalendarContextInterface {

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {NavigationNativeContainer} from '@react-navigation/native';
 
 import {ThemeProvider} from 'react-native-elements';
@@ -27,8 +27,7 @@ const App = () => {
     setAxiosInstance(undefined);
   };
 
-  const fetchUserFromStorage = async () => {
-    // TODO change to realmDb or encrypt storage?
+  const fetchUserFromStorage = useCallback(async () => {
     const userCredentialString = await AsyncStorage.getItem('userLoggedIn');
     if (userCredentialString) {
       try {
@@ -52,7 +51,7 @@ const App = () => {
       }
     }
     setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -64,8 +63,10 @@ const App = () => {
         '947382191204-g0dgrhs41lqrrgig7qq86j0umthnl1qe.apps.googleusercontent.com',
     });
     fetchUserFromStorage();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return () => {
+      console.log('cleaning up app');
+    };
+  }, [fetchUserFromStorage]); // want it to happen just at start
 
   const UserContextValue: UserContextInterface = {
     user,

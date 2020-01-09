@@ -1,13 +1,20 @@
 import React, {useContext, useState} from 'react';
-import {View, Text, SafeAreaView, ScrollView, StyleSheet} from 'react-native';
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Platform,
+  FlatList,
+} from 'react-native';
 import {CalendarContext, UserContext} from '../store/Context';
-import {Card, Button, ListItem, SearchBar} from 'react-native-elements';
+import {Button, ListItem, SearchBar} from 'react-native-elements';
 import Axios from 'axios';
+import NoEvents from '../components/NoEvents';
 
 interface Props {}
 
 const Events: React.FC<Props> = () => {
-  const {calendarId, calendarName} = useContext(CalendarContext);
+  const {calendarId} = useContext(CalendarContext);
   const {accessToken} = useContext(UserContext);
   const [events, setEvents] = useState([]);
   const [searchString, setSearchString] = useState('');
@@ -41,76 +48,67 @@ const Events: React.FC<Props> = () => {
       headers,
     });
 
+    // TODO navigate to confirmation window
     events.map(event => {
-      try {
-        instance.delete(`/calendars/${calendarId}/events/${event.id}`);
-        setEvents(events => events.filter(e => e.id != event.id))
-      } catch (err) {
-        // store errors, and display at the end
-        console.log(err);
-      }
+      instance
+        .delete(`/calendars/${calendarId}/events/${event.id}`)
+        .catch(response => {
+          // dispatch an alert/ toast/ notification to user about failed request
+          console.log(response);
+          fetchEvents();
+        });
+      setEvents(events => events.filter(e => e.id != event.id));
     });
   };
 
   return (
-    <SafeAreaView>
-      <ScrollView>
-        <View>
-          {events.length > 5 ? (
-            <Card containerStyle={{backgroundColor: '#999999'}}>
-              <Text
-                style={{
-                  fontSize: 16,
-                  textAlign: 'center',
-                  fontStyle: 'italic',
-                  color: 'white',
-                }}>
-                Scroll to the bottom to delete all.
-              </Text>
-            </Card>
-          ) : (
-            <></>
-          )}
-          <Card>
-              
-              <Text style={{
-                fontSize: 24,
-                textAlign: 'center',
-              }}>
-              {calendarId == "" ? "set calendar at Calendars tab" : `Calendar: ${calendarName}`}
-              </Text>
-          </Card>
-        </View>
-        <SearchBar
-          placeholder="Dinner with Elon Musk"
-          lightTheme={true}
-          onChangeText={value => setSearchString(value)}
-          value={searchString}
-        />
-        <Button
-          containerStyle={styles.buttonContainer}
-          onPress={fetchEvents}
-          title="Search for events"
-        />
-        {events.map(event => (<ListItem key={event.id} title={event.summary} />))}
-        {events.length === 0 ? (
-          <Text>No events</Text>
-        ) : (
-          <Button
-            containerStyle={styles.buttonContainer}
-            onPress={deleteEvents}
-            title="Delete events"
+    <>
+      <SearchBar
+        platform={Platform.OS as ('ios' | 'android')}
+        placeholder="Maths lectures"
+        lightTheme={true}
+        onChangeText={value => setSearchString(value)}
+        value={searchString}
+        onSubmitEditing={fetchEvents}
+      />
+      {events.length === 0 ? (
+        <NoEvents />
+      ) : (
+        <>
+          <FlatList
+            data={events}
+            renderItem={({item}) => (
+              <ListItem
+                style={{width: '100%'}}
+                key={item.id}
+                title={item.summary}
+                bottomDivider
+                topDivider
+              />
+            )}
+            ListFooterComponent={
+              <Button
+                containerStyle={styles.buttonContainer}
+                onPress={deleteEvents}
+                title="Delete events"
+              />
+            }
           />
-        )}
-      </ScrollView>
-    </SafeAreaView>
+        </>
+      )}
+    </>
   );
 };
 
 export default Events;
 
 const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+  },
   buttonContainer: {
     margin: 8,
+    width: '90%',
+    alignSelf: 'center',
   },
 });

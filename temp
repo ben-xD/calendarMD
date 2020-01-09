@@ -1,0 +1,15 @@
+         {events.length > 5 ? (
+            <Card containerStyle={{backgroundColor: '#999999'}}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  textAlign: 'center',
+                  fontStyle: 'italic',
+                  color: 'white',
+                }}>
+                Scroll to the bottom to delete all.
+              </Text>
+            </Card>
+          ) : (
+            <></>
+          )}

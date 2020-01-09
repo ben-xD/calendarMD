@@ -1,11 +1,29 @@
-import React, {useState, useCallback} from 'react';
-import {SafeAreaView, View, Text, ScrollView, StyleSheet, ActivityIndicator} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  SafeAreaView,
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  FlatList,
+} from 'react-native';
 import {CalendarContext, UserContext} from '../store/Context';
-import {Button} from 'react-native-elements';
 import Axios from 'axios';
-import {useFocusEffect} from '@react-navigation/native';
+import {ListItem} from 'react-native-elements';
 
 interface Props {}
+
+const Calendar = ({calendar, changeCalendar}) => {
+  const {id, summary} = calendar;
+  return (
+    <ListItem
+      title={summary}
+      bottomDivider
+      chevron
+      onPress={() => changeCalendar(calendar)}
+    />
+  );
+};
 
 const Calendars: React.FC<Props> = ({navigation}) => {
   const [calendars, setCalendars] = useState([]);
@@ -13,74 +31,76 @@ const Calendars: React.FC<Props> = ({navigation}) => {
   const {setCalendarId, setCalendarName} = React.useContext(CalendarContext);
   const {user, accessToken} = React.useContext(UserContext);
 
-  const changeCalendar = (calendar, setId) => {
-    setId(calendar.id);
+  const changeCalendar = calendar => {
+    setCalendarId(calendar.id);
     setCalendarName(calendar.summary);
     navigation.navigate('Events');
   };
 
-  const memoizedFetchCalendars = useCallback(() => {
+  useEffect(() => {
+    let isCancelled = false;
+    const source = Axios.CancelToken.source();
+
     const fetchCalendars = async () => {
       setLoading(true);
-      // TODO im making this request all the time? How to refactor instance. Tried for 5 hours
+
       const headers = {Authorization: `Bearer ${accessToken}`};
       const instance = Axios.create({
         baseURL: 'https://www.googleapis.com/calendar/v3',
         headers,
       });
       try {
-        const response = await instance.get('/users/me/calendarList');
-        if (response) {
+        const response = await instance.get('/users/me/calendarList', {
+          cancelToken: source.token,
+        });
+        if (!isCancelled && response) {
           setCalendars(response.data.items);
         }
       } catch (err) {
         console.log({err});
       }
-      setLoading(false)
+      setLoading(false);
     };
 
     if (accessToken) {
       fetchCalendars();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      isCancelled = true;
+      source.cancel('Cancel it');
+    };
   }, [accessToken]);
 
-  useFocusEffect(memoizedFetchCalendars);
-
-  return (loading ? 
-        <View style={{flex: 1, justifyContent: 'center'}}>
-          <ActivityIndicator size="large"></ActivityIndicator>
-        </View>
-           :
-            <SafeAreaView>
-          <ScrollView style={styles.container}>
-        <View>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>
-              {`Welcome, ${user ? user.user.givenName : ''}`}
-            </Text>
-            <Text>choose a calendar to search for events to delete:</Text>
-          </View>
-          {calendars.map(calendar => (
-            <Button
-              containerStyle={[styles.buttonContainer]}
-              key={calendar.id}
-              onPress={() => changeCalendar(calendar, setCalendarId)}
-              title={calendar.summary}
-            />
-            ))}
-        </View>
-            </ScrollView>
+  return loading ? (
+    <View style={{flex: 1, justifyContent: 'center'}}>
+      <ActivityIndicator size="large" />
+    </View>
+  ) : (
+    <SafeAreaView>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>
+          {`Welcome, ${user ? user.user.givenName : ''}`}
+        </Text>
+        <Text>choose a calendar to edit.</Text>
+      </View>
+      <FlatList
+        style={{height: '100%'}}
+        data={calendars}
+        keyExtractor={calendar => calendar.id}
+        renderItem={({item}) => (
+          <Calendar calendar={item} changeCalendar={changeCalendar} />
+        )}
+      />
     </SafeAreaView>
   );
-}
+};
 
 export default Calendars;
 
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: '100%'
+    height: '100%',
   },
   titleContainer: {
     margin: 8,

@@ -65,6 +65,5 @@ buck-out/
 
 # Sensitive files for API
 **/token.json
-**/tsconfig.json
 **/GoogleService-Info.plist
 **/google-services.json

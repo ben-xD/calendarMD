@@ -5,7 +5,7 @@
 - Added a bunch of events, only a few of which you care about (e.g. university lectures :poop:)
 
 ## TODOs
-- Refactor AxiosInstance into module
-- Fix typescript warnings
 - Add UI error handling for login fails/ internet connectivity issues
-- Improve UI, Add screenshots
+- Refactor events into multiple components
+- Fix typescript warnings
+- Refactor AxiosInstance into module

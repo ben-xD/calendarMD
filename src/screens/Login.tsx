@@ -1,23 +1,25 @@
-import React, {useState, useContext} from 'react';
-import {View, Text} from 'react-native';
+import React, {useState, useContext, useEffect, useCallback} from 'react';
+import {View, SafeAreaView, Animated, ImageBackground} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import {StyleSheet} from 'react-native';
 import {
   GoogleSignin,
-  GoogleSigninButton,
   statusCodes,
+  GoogleSigninButton,
 } from '@react-native-community/google-signin';
 import {UserContext} from '../store/Context';
+import styled from 'styled-components/native';
 
 interface Props {}
 
 const Login: React.FC<Props> = () => {
-  const [isSigninInProgress, setIsSigninInProgress] = useState(false);
   const {setUser, setToken} = useContext(UserContext);
+  const [signinInProgress, setSigninInProgress] = useState(false);
+  const [opacity] = useState(new Animated.Value(0));
 
   const loginHandler = async () => {
     try {
-      setIsSigninInProgress(true);
+      setSigninInProgress(true);
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       const {accessToken} = await GoogleSignin.getTokens();
@@ -36,31 +38,38 @@ const Login: React.FC<Props> = () => {
         console.log({error});
       }
     }
-    setIsSigninInProgress(false);
+    setSigninInProgress(false);
   };
 
+  useEffect(() => {
+    Animated.timing(opacity, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, [opacity]);
+
   return (
-    <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.header}>BED</Text>
-        <Text style={[styles.header, {fontSize: 24, fontStyle: 'italic'}]}>
-          Bulk event deleter
-        </Text>
-      </View>
-      <Text style={[styles.text, {fontWeight: '800', fontStyle: 'italic'}]}>
-        3 steps:
-      </Text>
-      <Text style={styles.text}>1. Select calendar</Text>
-      <Text style={styles.text}>2. Search events</Text>
-      <Text style={styles.text}>3. Delete</Text>
-      <GoogleSigninButton
-        style={styles.signInButton}
-        size={GoogleSigninButton.Size.Wide}
-        color={GoogleSigninButton.Color.Dark}
-        onPress={loginHandler}
-        disabled={isSigninInProgress}
-      />
-    </View>
+    <ImageBackground
+      style={[styles.image]}
+      source={require('../../assets/img/bed-coffee.jpg')}>
+      <SafeAreaView style={{flex: 1}}>
+        <View style={styles.container}>
+          <Animated.View style={[styles.headerContainer, {opacity}]}>
+            <Title style={{fontSize: 48, color: 'orange'}}>BED!</Title>
+            <Title style={{marginBottom: 12}}>Bulk event deleter</Title>
+          </Animated.View>
+          <View style={styles.buttonContainer}>
+            <GoogleSigninButton
+              style={styles.button}
+              onPress={loginHandler}
+              size={GoogleSigninButton.Size.Wide}
+              disabled={signinInProgress}
+            />
+          </View>
+        </View>
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
@@ -68,30 +77,35 @@ export default Login;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    height: '100%',
-  },
-  cardContainer: {
+    flex: 1,
     alignItems: 'center',
+    paddingTop: '15%',
   },
   headerContainer: {
-    marginBottom: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: 16,
+    paddingHorizontal: 32,
   },
-  header: {
-    fontWeight: '100',
-    fontSize: 48,
-    textAlign: 'center',
+  image: {
+    height: '100%',
+    width: '100%',
+    flex: 1,
   },
-  text: {
-    marginBottom: 16,
-    fontSize: 24,
-    fontWeight: '400',
-  },
-  signInButton: {
-    width: '95%',
-    height: '10%',
+  buttonContainer: {
     alignSelf: 'center',
     position: 'absolute',
-    bottom: 16,
+    bottom: '10%',
+  },
+  button: {
+    width: 250,
+    height: 65,
   },
 });
+
+const Title = styled.Text`
+  font-size: 24;
+  text-align: center;
+  font-weight: 100;
+  font-family: McLaren-Regular;
+  color: grey;
+`;
