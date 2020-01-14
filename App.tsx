@@ -1,7 +1,7 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import {NavigationNativeContainer} from '@react-navigation/native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { NavigationNativeContainer } from '@react-navigation/native';
 
-import {ThemeProvider} from 'react-native-elements';
+import { ThemeProvider } from 'react-native-elements';
 import Tabs from './src/containers/Tabs';
 import Login from './src/screens/Login';
 import {
@@ -9,8 +9,8 @@ import {
   User,
   statusCodes,
 } from '@react-native-community/google-signin';
-import {UserContext, UserContextInterface} from './src/store/Context';
-import {AxiosInstance} from 'axios';
+import { UserContext, UserContextInterface } from './src/store/Context';
+import { AxiosInstance } from 'axios';
 import AsyncStorage from '@react-native-community/async-storage';
 
 const App = () => {
@@ -28,16 +28,16 @@ const App = () => {
   };
 
   const fetchUserFromStorage = useCallback(async () => {
-    const userCredentialString = await AsyncStorage.getItem('userLoggedIn');
-    if (userCredentialString) {
+    const userLoggedIn = await AsyncStorage.getItem('userLoggedIn');
+    if (userLoggedIn) {
       try {
         const userInfo = await GoogleSignin.signInSilently();
-        const {accessToken} = await GoogleSignin.getTokens();
+        const { accessToken } = await GoogleSignin.getTokens();
         setToken(accessToken);
         setUser(userInfo);
       } catch (error) {
         // TODO UI warning of failure
-        console.log({error});
+        console.log({ error });
         emptyState();
         if (error.code === statusCodes.SIGN_IN_CANCELLED) {
           // user cancelled the login flow
@@ -64,7 +64,7 @@ const App = () => {
     });
     fetchUserFromStorage();
     return () => {
-      console.log('cleaning up app');
+      console.log('cleaning up app.tsx');
     };
   }, [fetchUserFromStorage]); // want it to happen just at start
 

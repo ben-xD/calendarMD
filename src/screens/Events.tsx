@@ -11,6 +11,7 @@ import {Button, ListItem, SearchBar} from 'react-native-elements';
 import Axios from 'axios';
 import NoEvents from '../components/NoEvents';
 import EventList from '../components/EventList';
+import {GoogleSignin} from '@react-native-community/google-signin';
 
 interface Props {}
 
@@ -42,7 +43,7 @@ const Events: React.FC<Props> = () => {
   };
 
   const deleteEvents = async () => {
-    // const {accessToken} = await GoogleSignin.getTokens();
+    const {accessToken} = await GoogleSignin.getTokens();
     const headers = {Authorization: `Bearer ${accessToken}`};
     const instance = Axios.create({
       baseURL: 'https://www.googleapis.com/calendar/v3',
@@ -58,7 +59,7 @@ const Events: React.FC<Props> = () => {
           console.log(response);
           fetchEvents();
         });
-      setEvents(events => events.filter(e => e.id != event.id));
+      setEvents(events => events.filter(e => e.id !== event.id));
     });
   };
 
