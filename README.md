@@ -15,7 +15,9 @@
 - Added a bunch of events, only a few of which you care about (e.g. university lectures :poop:)
 
 ## TODOs
+- Fix typescript warnings
+- Add tests
 - Add network error modal [netinfo](https://github.com/react-native-community/react-native-netinfo)
 - Add toast: permission issues (deleting read-only events)
-- Fix typescript warnings
+- Difference between eslint and some other linter that im using
 - Refactor AxiosInstance into module
