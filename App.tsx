@@ -10,7 +10,7 @@ import {
   statusCodes,
 } from '@react-native-community/google-signin';
 import { UserContext, UserContextInterface } from './src/store/Context';
-import { AxiosInstance } from 'axios';
+import Axios, { AxiosInstance } from 'axios';
 import AsyncStorage from '@react-native-community/async-storage';
 import NoInternet from './src/screens/NoInternet';
 
@@ -29,12 +29,12 @@ const App = () => {
     setAxiosInstance(undefined);
   };
 
-  // TODO add internet connectivity check
-  const unsubscribe = NetInfo.addEventListener(state => {
+  // const unsubscribe =
+  NetInfo.addEventListener(state => {
     if (state.isConnected && !internetEnabled) {
       setInternetEnabled(state.isConnected);
     } else if (!state.isConnected && internetEnabled) {
-      setInternetEnabled(state.isConnected)
+      setInternetEnabled(state.isConnected);
     }
   });
 
@@ -45,22 +45,27 @@ const App = () => {
       try {
         const userInfo = await GoogleSignin.signInSilently();
         const { accessToken } = await GoogleSignin.getTokens();
+        Axios.interceptors.request.use(config => {
+          console.log({ config });
+          return config;
+        });
         setToken(accessToken);
         setUser(userInfo);
       } catch (error) {
+        console.log({ error });
         emptyState();
         if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-          console.log("user cancelled the login flow")
+          console.log('user cancelled the login flow');
         } else if (error.code === statusCodes.IN_PROGRESS) {
-          console.log("operation (e.g. sign in) is in progress already")
+          console.log('operation (e.g. sign in) is in progress already');
         } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-          console.log("play services not available or outdated")
+          console.log('play services not available or outdated');
         } else {
-          console.log({ error })
+          console.log({ error });
         }
       }
     }
-    setLoading(false)
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -79,7 +84,6 @@ const App = () => {
     //   console.log("post set")
     //   setInternetEnabled(false);
     // }, 5000)
-
   }, [fetchUserFromStorage]);
 
   const UserContextValue: UserContextInterface = {
@@ -94,15 +98,21 @@ const App = () => {
 
   const theme = {
     colors: {
-      primary: '#FF6B60'
-    }
-  }
+      primary: '#FF6B60',
+    },
+  };
 
   return (
     <ThemeProvider theme={theme}>
       <NavigationNativeContainer>
         <UserContext.Provider value={UserContextValue}>
-          {!internetEnabled ? <NoInternet /> : (!loading && !user ? <Login /> : <Tabs />)}
+          {!internetEnabled ? (
+            <NoInternet />
+          ) : !loading && !user ? (
+            <Login />
+          ) : (
+                <Tabs />
+              )}
         </UserContext.Provider>
       </NavigationNativeContainer>
     </ThemeProvider>

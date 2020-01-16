@@ -1,14 +1,15 @@
-import React, {useContext} from 'react';
-import {SafeAreaView, StyleSheet, View, Linking} from 'react-native';
-import {Text, ListItem} from 'react-native-elements';
-import {UserContext} from '../store/Context';
-import {GoogleSignin} from '@react-native-community/google-signin';
+import React, { useContext, useState } from 'react';
+import { SafeAreaView, StyleSheet, View, Linking } from 'react-native';
+import { Text, ListItem } from 'react-native-elements';
+import { UserContext } from '../store/Context';
+import { GoogleSignin } from '@react-native-community/google-signin';
 import AsyncStorage from '@react-native-community/async-storage';
 
-interface Props {}
+interface Props { }
 
-const Settings: React.FC<Props> = ({navigation}) => {
-  const {emptyState} = useContext(UserContext);
+const Settings: React.FC<Props> = ({ navigation }) => {
+  const { emptyState } = useContext(UserContext);
+  const [errors, setErrors] = useState<string[]>([])
 
   const logoutHandler = () => {
     AsyncStorage.removeItem('userLoggedIn');
@@ -19,9 +20,9 @@ const Settings: React.FC<Props> = ({navigation}) => {
 
   const openEmail = () => {
     Linking.openURL('mailto:ben@fresla.co?subject=Bed%20App%20Support').catch(
-      // TODO display toast warning about no mail app available
-      err => console.log(err),
-    );
+      err => {
+        setErrors(['Unable to open mail app, do you have one set?'])
+      })
   };
 
   return (
@@ -44,6 +45,11 @@ const Settings: React.FC<Props> = ({navigation}) => {
           bottomDivider
           onPress={logoutHandler}
         />
+      </View>
+      <View>
+        {errors.map((error, i) => (
+          <Text key={i}>Error: {error}</Text>
+        ))}
       </View>
     </SafeAreaView>
   );

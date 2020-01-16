@@ -1,19 +1,19 @@
-import React, {useState, useContext, useEffect, useCallback} from 'react';
-import {View, SafeAreaView, Animated, ImageBackground} from 'react-native';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
+import { View, SafeAreaView, Animated, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 import {
   GoogleSignin,
   statusCodes,
   GoogleSigninButton,
 } from '@react-native-community/google-signin';
-import {UserContext} from '../store/Context';
+import { UserContext } from '../store/Context';
 import styled from 'styled-components/native';
 
-interface Props {}
+interface Props { }
 
 const Login: React.FC<Props> = () => {
-  const {setUser, setToken} = useContext(UserContext);
+  const { setUser, setToken } = useContext(UserContext);
   const [signinInProgress, setSigninInProgress] = useState(false);
   const [opacity] = useState(new Animated.Value(0));
 
@@ -22,11 +22,14 @@ const Login: React.FC<Props> = () => {
       setSigninInProgress(true);
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      const {accessToken} = await GoogleSignin.getTokens();
-      setUser(userInfo);
+      const { accessToken } = await GoogleSignin.getTokens();
       setToken(accessToken);
+      setSigninInProgress(false);
       await AsyncStorage.setItem('userLoggedIn', JSON.stringify(true));
+      setUser(userInfo);
     } catch (error) {
+      // setInternetEnabled passed into login, change it here. (add retry)
+      setSigninInProgress(false);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // user cancelled the login flow
       } else if (error.code === statusCodes.IN_PROGRESS) {
@@ -35,10 +38,9 @@ const Login: React.FC<Props> = () => {
         // play services not available or outdated
       } else {
         // some other error happened
-        console.log({error});
+        console.log({ error });
       }
     }
-    setSigninInProgress(false);
   };
 
   useEffect(() => {
@@ -53,11 +55,11 @@ const Login: React.FC<Props> = () => {
     <ImageBackground
       style={[styles.image]}
       source={require('../../assets/img/bed-coffee.jpg')}>
-      <SafeAreaView style={{flex: 1}}>
+      <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.container}>
-          <Animated.View style={[styles.headerContainer, {opacity}]}>
-            <Title style={{fontSize: 48, color: 'orange'}}>BED!</Title>
-            <Title style={{marginBottom: 12}}>Bulk event deleter</Title>
+          <Animated.View style={[styles.headerContainer, { opacity }]}>
+            <Title style={{ fontSize: 48, color: 'orange' }}>BED!</Title>
+            <Title style={{ marginBottom: 12 }}>Bulk event deleter</Title>
           </Animated.View>
           <View style={styles.buttonContainer}>
             <GoogleSigninButton

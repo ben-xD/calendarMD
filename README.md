@@ -14,6 +14,11 @@
 - Accidentally added many similar events to the wrong calendar
 - Added a bunch of events, only a few of which you care about (e.g. university lectures :poop:)
 
+## Releasing to devices:
+- Plug device in
+- Choose deviceId from `avd devices`
+- Set HARDWARE_DEVICE_ID env to emulator id
+
 ## TODOs
 - Fix typescript warnings
 - Add tests
