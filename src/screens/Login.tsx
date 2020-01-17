@@ -1,5 +1,5 @@
-import React, { useState, useContext, useEffect, useCallback } from 'react';
-import { View, SafeAreaView, Animated, ImageBackground } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { View, SafeAreaView, Image } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import { StyleSheet } from 'react-native';
 import {
@@ -9,13 +9,15 @@ import {
 } from '@react-native-community/google-signin';
 import { UserContext } from '../store/Context';
 import styled from 'styled-components/native';
+import LinearGradient from 'react-native-linear-gradient';
+import LottieView from 'lottie-react-native';
+
 
 interface Props { }
 
 const Login: React.FC<Props> = () => {
   const { setUser, setToken } = useContext(UserContext);
   const [signinInProgress, setSigninInProgress] = useState(false);
-  const [opacity] = useState(new Animated.Value(0));
 
   const loginHandler = async () => {
     try {
@@ -43,35 +45,24 @@ const Login: React.FC<Props> = () => {
     }
   };
 
-  useEffect(() => {
-    Animated.timing(opacity, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  }, [opacity]);
-
   return (
-    <ImageBackground
-      style={[styles.image]}
-      source={require('../../assets/img/bed-coffee.jpg')}>
-      <SafeAreaView style={{ flex: 1 }}>
-        <View style={styles.container}>
-          <Animated.View style={[styles.headerContainer, { opacity }]}>
-            <Title style={{ fontSize: 48, color: 'orange' }}>BED!</Title>
-            <Title style={{ marginBottom: 12 }}>Bulk event deleter</Title>
-          </Animated.View>
-          <View style={styles.buttonContainer}>
-            <GoogleSigninButton
-              style={styles.button}
-              onPress={loginHandler}
-              size={GoogleSigninButton.Size.Wide}
-              disabled={signinInProgress}
-            />
-          </View>
+    <LinearGradient style={styles.container} colors={['#FF6B60', '#FFB528', '#FFB528']}>
+      <SafeAreaView style={{ flex: 1, alignItems: 'center' }}>
+        <View style={[styles.headerContainer]}>
+          <Subtitle style={{ fontSize: 40, color: 'white' }}>CalendarMD</Subtitle>
+          <Subtitle style={{ marginBottom: 12, color: 'white' }}>mass deleter</Subtitle>
+        </View>
+        <Image style={styles.logo} source={require('../../assets/img/logo.png')}></Image>
+        <View style={styles.buttonContainer}>
+          <GoogleSigninButton
+            style={styles.button}
+            onPress={loginHandler}
+            size={GoogleSigninButton.Size.Wide}
+            disabled={signinInProgress}
+          />
         </View>
       </SafeAreaView>
-    </ImageBackground>
+    </LinearGradient>
   );
 };
 
@@ -81,17 +72,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: '15%',
   },
   headerContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    width: '100%',
     borderRadius: 16,
+    marginTop: 32,
     paddingHorizontal: 32,
   },
   image: {
     height: '100%',
     width: '100%',
     flex: 1,
+  },
+  logo: {
+    margin: 32,
+    width: 300,
+    height: 300
   },
   buttonContainer: {
     alignSelf: 'center',
@@ -104,10 +100,10 @@ const styles = StyleSheet.create({
   },
 });
 
-const Title = styled.Text`
+const Subtitle = styled.Text`
   font-size: 24;
   text-align: center;
   font-weight: 100;
-  font-family: McLaren-Regular;
+  font-family: Roboto;
   color: grey;
 `;

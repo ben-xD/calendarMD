@@ -13,7 +13,7 @@ module.exports = {
       jsx: true
     }
   },
-  plugins: ['@typescript-eslint', 'react', 'jsx-a11y'],
+  plugins: ['@typescript-eslint', 'react'],
   settings: {
     react: {
       version: 'detect'
