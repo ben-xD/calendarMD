@@ -1,14 +1,15 @@
-# CalendarMD: mass deleter for Google Calendar. Log in, search for events you don't like, and delete them all. 
+# CalendarMD: mass deleter for Google Calendar.
+### Log in, search for events you don't like, and delete them all. 
 
 [![google-play](assets/img/play-store.png)](https://play.google.com/store/apps/details?id=co.fresla.bed)
 
 ## Screenshots
 <p float="left">
-  <img src="./assets/screenshots/ios/login.png" alt="screenshot-1" width="150">
-  <img src="./assets/screenshots/ios/calendars.png" alt="screenshot-2" width="150">
-  <img src="./assets/screenshots/ios/searchEvents.png" alt="screenshot-3" width="150">
-  <img src="./assets/screenshots/ios/events.png" alt="screenshot-4" width="150">
-  <img src="./assets/screenshots/ios/settings.png" alt="screenshot-5" width="150">
+  <img src="./assets/screenshots/android/login.png" alt="screenshot-1" width="150">
+  <img src="./assets/screenshots/android/calendars.png" alt="screenshot-2" width="150">
+  <img src="./assets/screenshots/android/searchEvents.png" alt="screenshot-3" width="150">
+  <img src="./assets/screenshots/android/events.png" alt="screenshot-4" width="150">
+  <img src="./assets/screenshots/android/settings.png" alt="screenshot-5" width="150">
 </p>
 
 
