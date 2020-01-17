@@ -1,7 +1,6 @@
 # CalendarMD: mass deleter for Google Calendar. Log in, search for events you don't like, and delete them all. 
 
-
-[![google-play][(https://shootismoke.github.io/assets/img/play-store.png)](https://play.google.com/store/apps/details?id=co.fresla.bedes)
+[![google-play](assets/img/play-store.png)](https://play.google.com/store/apps/details?id=co.fresla.bed)
 
 ## Screenshots
 <p float="left">
